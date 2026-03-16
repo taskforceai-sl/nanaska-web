@@ -23,7 +23,7 @@ const NAV_LINKS = [
       { label: 'Strategic Level', to: '/cima-strategic-level' },
     ],
   },
-  { label: 'Testimonials', to: '/#testimonials' },
+  { label: 'Testimonials', to: '/testimonials' },
   { label: 'Blog', to: '/#blog' },
   { label: 'Contact Us', to: '/#contact' },
 ];
