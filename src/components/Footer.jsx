@@ -38,8 +38,7 @@ export default function Footer() {
               <span className="footer__logo-accent">ASKA</span>
             </a>
             <p className="footer__tagline">
-              Leading CIMA Course Provider — building better leaders for the
-              world.
+              Leading CIMA Course Provider — building better leaders for the world.
             </p>
             <div className="footer__contact">
               <p>📧 info@nanaska.com</p>
@@ -61,14 +60,25 @@ export default function Footer() {
               <ul className="footer__col-links">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a href={link.href} className="footer__col-link">
-                      {link.label}
-                    </a>
+                    <a href={link.href} className="footer__col-link">{link.label}</a>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Secure Payments */}
+      <div className="footer__payments">
+        <div className="footer__payments-inner">
+          <p className="footer__payments-label">Secure & Accepted Payment Methods</p>
+          <img
+            src="https://www.nanaska.com/wp-content/uploads/2023/02/secure-payments-logos-v2-1-2048x826.png"
+            alt="Accepted payment methods – Visa, Mastercard, PayPal and more"
+            className="footer__payments-img"
+            loading="lazy"
+          />
         </div>
       </div>
 

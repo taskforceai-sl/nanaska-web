@@ -1,73 +1,53 @@
+import { useState } from 'react';
 import './Courses.css';
 
-const COURSE_LEVELS = [
+const LEVELS = [
   {
     id: 'certificate',
-    level: 'Certificate Level',
+    label: 'Certificate Level',
     tag: 'Entry Point',
-    tagColor: '#24ade3',
-    icon: '🎓',
+    color: '#24ade3',
+    img: 'https://www.nanaska.com/wp-content/uploads/2021/03/cert-level.jpg',
     description:
-      'The Certificate Level is the ideal entry point into the CIMA qualification. It covers the fundamentals of finance, accounting, and business, providing a strong foundation for your professional journey.',
-    subjects: [
-      'Business Accounting',
-      'Management Accounting',
-      'Business Mathematics',
-      'Corporate & Business Law',
-    ],
-    href: '#certificate',
+      'The Certificate Level is the ideal entry point into the CIMA qualification, covering the fundamentals of finance, accounting, and business.',
+    subjects: ['Business Accounting', 'Management Accounting', 'Business Mathematics', 'Corporate & Business Law'],
   },
   {
     id: 'operational',
-    level: 'Operational Level',
+    label: 'Operational Level',
     tag: 'Foundation',
-    tagColor: '#1b365d',
-    icon: '📊',
+    color: '#1b365d',
+    img: 'https://www.nanaska.com/wp-content/uploads/2021/03/opera-level.jpg',
     description:
-      'The Operational Level builds on your foundational knowledge, developing core financial and management accounting competencies essential for day-to-day business decision-making.',
-    subjects: [
-      'Management Accounting',
-      'Financial Reporting',
-      'Business Finance',
-      'Enterprise Operations',
-    ],
-    href: '#operational',
+      'The Operational Level builds core financial and management accounting competencies essential for day-to-day business decision-making.',
+    subjects: ['Management Accounting', 'Financial Reporting', 'Business Finance', 'Enterprise Operations'],
   },
   {
     id: 'management',
-    level: 'Management Level',
+    label: 'Management Level',
     tag: 'Intermediate',
-    tagColor: '#f5a623',
-    icon: '📈',
+    color: '#f5a623',
+    img: 'https://www.nanaska.com/wp-content/uploads/2021/03/manage-level.jpg',
     description:
-      'At Management Level, you develop strategic analysis and decision-making skills, learning to manage resources effectively and advise on complex business challenges.',
-    subjects: [
-      'Advanced Management Accounting',
-      'Advanced Financial Reporting',
-      'Risk Management',
-      'Enterprise Management',
-    ],
-    href: '#management',
+      'The Management Level develops strategic analysis and decision-making skills, equipping you to manage resources and advise on complex challenges.',
+    subjects: ['Advanced Management Accounting', 'Advanced Financial Reporting', 'Risk Management', 'Enterprise Management'],
   },
   {
     id: 'strategic',
-    level: 'Strategic Level',
+    label: 'Strategic Level',
     tag: 'Advanced',
-    tagColor: '#1b365d',
-    icon: '🏆',
+    color: '#1b365d',
+    img: 'https://www.nanaska.com/wp-content/uploads/2021/03/strat-level.jpg',
     description:
-      'The Strategic Level is the pinnacle of the CIMA qualification. It focuses on high-level leadership, governance, and strategic decision-making that drives organizational success.',
-    subjects: [
-      'Strategic Management',
-      'Strategic Financial Management',
-      'Risk & Control Strategy',
-      'Business Strategy',
-    ],
-    href: '#strategic',
+      'The Strategic Level is the pinnacle of the CIMA qualification, focusing on leadership, governance, and high-level strategic decision-making.',
+    subjects: ['Strategic Management', 'Strategic Financial Management', 'Risk & Control Strategy', 'Business Strategy'],
   },
 ];
 
 export default function Courses() {
+  const [active, setActive] = useState('certificate');
+  const current = LEVELS.find((l) => l.id === active);
+
   return (
     <section className="courses" id="courses">
       <div className="courses__container">
@@ -76,42 +56,71 @@ export default function Courses() {
           <h2 className="courses__title">CIMA Qualification Levels</h2>
           <p className="courses__subtitle">
             Progress through the four levels of the CIMA qualification with
-            Nanaska&apos;s expert guidance. Each level is designed to build your
-            competencies and advance your career.
+            Nanaska&apos;s expert guidance.
           </p>
         </div>
 
-        <div className="courses__grid">
-          {COURSE_LEVELS.map((course) => (
-            <div key={course.id} className="course-card">
-              <div className="course-card__icon">{course.icon}</div>
+        {/* Tab bar */}
+        <div className="courses__tabs" role="tablist">
+          {LEVELS.map((level) => (
+            <button
+              key={level.id}
+              role="tab"
+              aria-selected={level.id === active}
+              aria-controls={`panel-${level.id}`}
+              className={`courses__tab${level.id === active ? ' courses__tab--active' : ''}`}
+              style={level.id === active ? { borderBottomColor: level.color } : {}}
+              onClick={() => setActive(level.id)}
+            >
               <span
-                className="course-card__tag"
-                style={{ backgroundColor: course.tagColor }}
-              >
-                {course.tag}
-              </span>
-              <h3 className="course-card__title">{course.level}</h3>
-              <p className="course-card__desc">{course.description}</p>
-              <ul className="course-card__subjects">
-                {course.subjects.map((sub) => (
-                  <li key={sub} className="course-card__subject">
-                    <span className="course-card__check">✓</span>
-                    {sub}
-                  </li>
-                ))}
-              </ul>
-              <a href={course.href} className="course-card__link">
-                View Syllabus →
-              </a>
-            </div>
+                className="courses__tab-dot"
+                style={{ backgroundColor: level.id === active ? level.color : '#cbd5e1' }}
+              />
+              {level.label}
+            </button>
           ))}
         </div>
 
+        {/* Panel */}
+        <div
+          id={`panel-${current.id}`}
+          role="tabpanel"
+          className="courses__panel"
+        >
+          <div className="courses__panel-img-wrap">
+            <img
+              src={current.img}
+              alt={`${current.label} diagram`}
+              className="courses__panel-img"
+              loading="lazy"
+            />
+            <span
+              className="courses__panel-tag"
+              style={{ backgroundColor: current.color }}
+            >
+              {current.tag}
+            </span>
+          </div>
+
+          <div className="courses__panel-body">
+            <h3 className="courses__panel-title">{current.label}</h3>
+            <p className="courses__panel-desc">{current.description}</p>
+            <ul className="courses__panel-subjects">
+              {current.subjects.map((s) => (
+                <li key={s} className="courses__panel-subject">
+                  <span className="courses__panel-check" style={{ color: current.color }}>✓</span>
+                  {s}
+                </li>
+              ))}
+            </ul>
+            <a href={`#${current.id}`} className="courses__panel-link" style={{ backgroundColor: current.color }}>
+              View Syllabus →
+            </a>
+          </div>
+        </div>
+
         <div className="courses__cta">
-          <a href="#register" className="courses__cta-btn">
-            Register for a Course
-          </a>
+          <a href="#register" className="courses__cta-btn">Register for a Course</a>
         </div>
       </div>
     </section>

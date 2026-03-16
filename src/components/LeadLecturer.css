@@ -1,0 +1,129 @@
+.lecturer {
+  background-color: #ffffff;
+  padding: 5rem 0;
+  overflow: hidden;
+}
+
+.lecturer__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+/* Image */
+.lecturer__img-col { display: flex; justify-content: center; }
+
+.lecturer__img-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.lecturer__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(27, 54, 93, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.lecturer__img-accent {
+  position: absolute;
+  bottom: -18px;
+  right: -18px;
+  width: 100%;
+  height: 100%;
+  border: 4px solid #24ade3;
+  border-radius: 16px;
+  z-index: 0;
+  opacity: 0.45;
+}
+
+/* Body */
+.lecturer__eyebrow {
+  display: inline-block;
+  color: #24ade3;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.lecturer__name {
+  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  font-weight: 900;
+  color: #1b365d;
+  margin: 0 0 1.1rem;
+  line-height: 1.15;
+}
+
+.lecturer__credentials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.lecturer__badge {
+  display: inline-block;
+  background-color: #e8f4fd;
+  color: #1b365d;
+  border: 1px solid #b8d8f0;
+  border-radius: 50px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lecturer__bio {
+  color: #4b5563;
+  font-size: 0.97rem;
+  line-height: 1.8;
+  margin: 0 0 1rem;
+}
+
+.lecturer__bio strong { color: #1b365d; }
+
+.lecturer__stats {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.lecturer__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lecturer__stat-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #24ade3;
+  line-height: 1;
+}
+
+.lecturer__stat-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 960px) {
+  .lecturer__container { grid-template-columns: 1fr; gap: 3rem; }
+  .lecturer__img-wrap  { max-width: 360px; margin: 0 auto; }
+}
+
+@media (max-width: 480px) {
+  .lecturer__stats { gap: 1.5rem; }
+  .lecturer__stat-number { font-size: 1.8rem; }
+}
