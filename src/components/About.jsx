@@ -3,8 +3,9 @@ import './About.css';
 export default function About() {
   return (
     <section className="about" id="about">
-      <div className="about__container">
-        <div className="about__text">
+      <div className="about__inner">
+        {/* Left column – intro text */}
+        <div className="about__col about__col--left">
           <span className="about__eyebrow">Who We Are</span>
           <h2 className="about__title">Empowering Future Finance Leaders</h2>
           <p className="about__body">
@@ -13,12 +14,6 @@ export default function About() {
             application. Since our founding, we have helped thousands of
             students unlock their potential and build rewarding careers in
             finance and management accounting.
-          </p>
-          <p className="about__body">
-            Our team of experienced tutors and industry professionals work
-            tirelessly to ensure every student receives personalised support,
-            flexible learning options, and the best possible preparation for
-            CIMA examinations.
           </p>
           <div className="about__features">
             {[
@@ -33,34 +28,53 @@ export default function About() {
               </div>
             ))}
           </div>
-          <a href="#courses" className="about__btn">
-            Explore Our Courses
-          </a>
+          <a href="#courses" className="about__btn">Explore Our Courses</a>
         </div>
 
-        <div className="about__visual">
-          <div className="about__visual-card">
-            <div className="about__visual-inner">
-              <div className="about__metric">
-                <span className="about__metric-number">5,000+</span>
-                <span className="about__metric-label">Graduates</span>
-              </div>
-              <div className="about__divider" />
-              <div className="about__metric">
-                <span className="about__metric-number">95%</span>
-                <span className="about__metric-label">Pass Rate</span>
-              </div>
-              <div className="about__divider" />
-              <div className="about__metric">
-                <span className="about__metric-number">15+</span>
-                <span className="about__metric-label">Years</span>
-              </div>
+        {/* Centre – student photo */}
+        <div className="about__col about__col--center">
+          <div className="about__img-wrap">
+            <img
+              src="https://www.nanaska.com/wp-content/uploads/2025/10/front-view-male-student-wearing-black-backpack-holding-copybooks-files-blue-wall-min-min-scaled-1.webp"
+              alt="Nanaska student"
+              className="about__student-img"
+              loading="lazy"
+            />
+            <div className="about__img-badge">
+              <span className="about__img-badge-number">95%</span>
+              <span className="about__img-badge-label">Pass Rate</span>
             </div>
-            <p className="about__visual-caption">
+          </div>
+        </div>
+
+        {/* Right column – metrics + quote */}
+        <div className="about__col about__col--right">
+          <div className="about__metrics">
+            {[
+              { number: '5,000+', label: 'Graduates' },
+              { number: '15+',    label: 'Years Experience' },
+              { number: '20+',    label: 'Countries' },
+            ].map(({ number, label }) => (
+              <div key={label} className="about__metric">
+                <span className="about__metric-number">{number}</span>
+                <span className="about__metric-label">{label}</span>
+              </div>
+            ))}
+          </div>
+          <blockquote className="about__quote">
+            <p className="about__quote-text">
               "Nanaska gave me the skills and confidence to pass all my CIMA
-              exams first time."
+              exams first time. The support is truly world-class."
             </p>
-            <p className="about__visual-attribution">— Sarah K., CGMA</p>
+            <footer className="about__quote-footer">— Sarah K., CGMA</footer>
+          </blockquote>
+          <div className="about__cta-group">
+            <a href="#register" className="about__btn about__btn--accent">
+              Register Now
+            </a>
+            <a href="#connect" className="about__btn about__btn--outline">
+              Nanaska Connect
+            </a>
           </div>
         </div>
       </div>
