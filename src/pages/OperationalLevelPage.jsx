@@ -120,7 +120,7 @@ const OPERATIONAL_LEVEL = {
         { topic: 'Financial Reporting Application', desc: 'Applying F1 knowledge to prepare and interpret financial information in context.' },
         { topic: 'Management Accounting Application', desc: 'Using P1 tools for costing, budgeting and performance measurement in the scenario.' },
         { topic: 'Digital Finance in Context', desc: 'Applying E1 digital concepts within the operational business scenario.' },
-        { topic: 'Exam Technique', desc: 'Time management, answering varient tasks and presenting professional-quality responses.' },
+        { topic: 'Exam Technique', desc: 'Time management, answering variant tasks and presenting professional-quality responses.' },
       ],
       outcomes: [
         'Integrate knowledge across E1, F1 and P1 to address complex operational issues.',
