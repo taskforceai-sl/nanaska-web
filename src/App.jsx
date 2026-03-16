@@ -10,6 +10,7 @@ import CertificateLevelPage from './pages/CertificateLevelPage';
 import OperationalLevelPage from './pages/OperationalLevelPage';
 import ManagementLevelPage from './pages/ManagementLevelPage';
 import StrategicLevelPage from './pages/StrategicLevelPage';
+import TestimonialsPage from './pages/TestimonialsPage';
 import './App.css';
 
 function Layout({ children }) {
@@ -36,6 +37,7 @@ function App() {
           <Route path="/cima-operational-level" element={<OperationalLevelPage />} />
           <Route path="/cima-management-level" element={<ManagementLevelPage />} />
           <Route path="/cima-strategic-level" element={<StrategicLevelPage />} />
+          <Route path="/testimonials" element={<TestimonialsPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>
