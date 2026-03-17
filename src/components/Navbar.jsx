@@ -81,7 +81,7 @@ export default function Navbar() {
         sub: level.subjects.map(s => ({ label: `${s.code} – ${s.name}`, to: `/${s.slug}` })),
       })),
     },
-    { label: 'Testimonials', to: '/#testimonials' },
+    { label: 'Testimonials', to: '/testimonials' },
     { label: 'Blog', to: '/#blog' },
     { label: 'Contact Us', to: '/contact' },
   ];
