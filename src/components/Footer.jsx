@@ -68,7 +68,7 @@ export default function Footer() {
             />
 
             <p className="footer__copyright">
-              © Copyright 2022 - Artslab Creatives - All Rights Reserved
+              © Copyright 2026 - The Red Sun - All Rights Reserved
             </p>
           </div>
 
