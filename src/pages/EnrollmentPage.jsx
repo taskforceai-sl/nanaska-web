@@ -97,21 +97,10 @@ export default function EnrollmentPage() {
 				const err = await res.json().catch(() => ({}));
 				throw new Error(err.message || 'Payment initiation failed');
 			}
-			const { paymentUrl, payload } = await res.json();
+			const { paymentUrl } = await res.json();
 
-			// Build a hidden form and POST it to the IPG checkout page
-			const ipgForm = document.createElement('form');
-			ipgForm.method = 'POST';
-			ipgForm.action = paymentUrl;
-			Object.entries(payload).forEach(([k, v]) => {
-				const input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = k;
-				input.value = String(v ?? '');
-				ipgForm.appendChild(input);
-			});
-			document.body.appendChild(ipgForm);
-			ipgForm.submit();
+			// Redirect the browser to the PayCorp hosted checkout page
+			window.location.href = paymentUrl;
 		} catch (err) {
 			setPayError(err.message || 'An error occurred. Please try again.');
 			setPaying(false);
