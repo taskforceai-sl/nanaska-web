@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import './EnrollmentPage.css';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const CIMA_STAGES = [
   'Certificate Level',
   'Operational Level',
@@ -29,6 +31,56 @@ export default function EnrollmentPage() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const [payError, setPayError] = useState('');
+  const [paying, setPaying] = useState(false);
+
+  /**
+   * Attempt to pay online via the backend API.
+   * Requires VITE_API_URL to be set and the user to be logged in (JWT stored in localStorage).
+   */
+  const handlePayOnline = async (combinationId) => {
+    if (!API_URL) return;
+    const token = localStorage.getItem('nanaska_token');
+    if (!token) {
+      setPayError('Please log in to pay online.');
+      return;
+    }
+    setPayError('');
+    setPaying(true);
+    try {
+      const res = await fetch(`${API_URL}/payments/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ combinationId }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Payment initiation failed');
+      }
+      const { paymentUrl, payload } = await res.json();
+
+      // Build a hidden form and POST it to the IPG checkout page
+      const ipgForm = document.createElement('form');
+      ipgForm.method = 'POST';
+      ipgForm.action = paymentUrl;
+      Object.entries(payload).forEach(([k, v]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = k;
+        input.value = String(v ?? '');
+        ipgForm.appendChild(input);
+      });
+      document.body.appendChild(ipgForm);
+      ipgForm.submit();
+    } catch (err) {
+      setPayError(err.message || 'An error occurred. Please try again.');
+      setPaying(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -87,17 +139,35 @@ export default function EnrollmentPage() {
                             </span>
                           )}
                         </div>
-                        <span className="enrollment-page__summary-price">${item.price}</span>
+                        <span className="enrollment-page__summary-price">LKR {item.price.toLocaleString()}</span>
                       </li>
                     ))}
                   </ul>
                   <div className="enrollment-page__summary-total">
                     <span>Estimated Total</span>
-                    <span>${cartTotal}</span>
+                    <span>LKR {cartTotal.toLocaleString()}</span>
                   </div>
                   <p className="enrollment-page__summary-note">
                     ℹ️ Final pricing will be confirmed by our team upon enrollment review.
                   </p>
+
+                  {/* Online payment – only shown when backend is configured */}
+                  {API_URL && cartItems.length === 1 && cartItems[0].type === 'level' && (
+                    <div className="enrollment-page__pay-online">
+                      <p className="enrollment-page__pay-online-note">
+                        Pay securely online via our payment gateway:
+                      </p>
+                      {payError && <p className="enrollment-page__pay-error">{payError}</p>}
+                      <button
+                        type="button"
+                        className="enrollment-page__pay-btn"
+                        disabled={paying}
+                        onClick={() => handlePayOnline(cartItems[0].levelId + '_full')}
+                      >
+                        {paying ? 'Redirecting…' : '💳 Pay Online Now'}
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
             </div>
