@@ -363,3 +363,44 @@
     padding: 1.25rem;
   }
 }
+
+/* Online payment section */
+.enrollment-page__pay-online {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.enrollment-page__pay-online-note {
+  font-size: 0.875rem;
+  color: #475569;
+  margin: 0 0 0.75rem;
+}
+
+.enrollment-page__pay-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #1b365d 0%, #24ade3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.enrollment-page__pay-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.enrollment-page__pay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.enrollment-page__pay-error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin: 0 0 0.75rem;
+}

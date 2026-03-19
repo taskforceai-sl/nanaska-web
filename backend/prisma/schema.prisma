@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ─────────────────────────────────────────────────────────────────
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String       @map("password_hash")
+  name         String
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  orders       Order[]
+  userCourses  UserCourse[]
+
+  @@map("users")
+}
+
+// ─── Courses (individual subjects) ─────────────────────────────────────────
+model Course {
+  id          String  @id                    // e.g. "BA1", "E1"
+  name        String
+  price       Int                            // in LKR (whole units, e.g. 16000)
+  level       String                         // certificate | operational | management | strategic
+  slug        String  @unique
+  description String? @db.Text
+
+  combinationItems CourseCombinationItem[]
+  userCourses      UserCourse[]
+
+  @@map("courses")
+}
+
+// ─── Course Combinations ────────────────────────────────────────────────────
+model CourseCombination {
+  id    String @id                           // e.g. "cert_ba1_ba2"
+  level String
+  price Int                                  // total price in LKR
+
+  items  CourseCombinationItem[]
+  orders Order[]
+
+  @@map("course_combinations")
+}
+
+model CourseCombinationItem {
+  id            String @id @default(uuid())
+  combinationId String @map("combination_id")
+  courseId      String @map("course_id")
+
+  combination CourseCombination @relation(fields: [combinationId], references: [id])
+  course      Course             @relation(fields: [courseId], references: [id])
+
+  @@unique([combinationId, courseId])
+  @@map("course_combination_items")
+}
+
+// ─── Orders ─────────────────────────────────────────────────────────────────
+model Order {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  combinationId   String      @map("combination_id")
+  amount          Int                                // in LKR
+  status          OrderStatus @default(PENDING)
+  ipgMerchantRef  String?     @map("ipg_merchant_ref")
+  ipgRef          String?     @map("ipg_ref")        // returned by IPG after payment
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt             @map("updated_at")
+
+  user        User               @relation(fields: [userId], references: [id])
+  combination CourseCombination  @relation(fields: [combinationId], references: [id])
+  userCourses UserCourse[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// ─── UserCourses (access grants) ────────────────────────────────────────────
+model UserCourse {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  courseId  String   @map("course_id")
+  orderId   String   @map("order_id")
+  grantedAt DateTime @default(now()) @map("granted_at")
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+  order  Order  @relation(fields: [orderId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("user_courses")
+}
