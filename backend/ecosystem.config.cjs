@@ -8,6 +8,7 @@ module.exports = {
 			exec_mode: 'fork',
 			autorestart: true,
 			max_memory_restart: '300M',
+			env_file: '/var/www/nanaska-web/backend/.env',
 			env: {
 				NODE_ENV: 'production',
 			},
