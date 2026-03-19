@@ -37,6 +37,8 @@ import EnrollmentPage from './pages/EnrollmentPage';
 import FinancialLeadershipPage from './pages/FinancialLeadershipPage';
 import CaseStudyPage from './pages/CaseStudyPage';
 import CertificateLevelIntakePage from './pages/CertificateLevelIntakePage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentCancelPage from './pages/PaymentCancelPage';
 
 import IndividualCoursePage from './components/IndividualCoursePage';
 import { getCourseBySlug, getLevelById } from './data/coursesData';
@@ -105,8 +107,8 @@ function App() {
 
 							<Route path="/contact" element={<ContactPage />} />
 							<Route path="/lecturers" element={<LecturersPage />} />
-							<Route path="/enrollment" element={<EnrollmentPage />} />
-
+							<Route path="/enrollment" element={<EnrollmentPage />} />						<Route path="/payment-success" element={<PaymentSuccessPage />} />
+						<Route path="/payment-cancel" element={<PaymentCancelPage />} />
 							{/* Dynamic course pages */}
 							<Route path="/:courseSlug" element={<CourseRouteWrapper />} />
 

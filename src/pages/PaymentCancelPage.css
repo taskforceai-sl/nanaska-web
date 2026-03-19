@@ -1,0 +1,85 @@
+.payment-cancel {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff5f5;
+	padding: 2rem;
+}
+
+.payment-cancel__card {
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 8px 40px rgba(27, 54, 93, 0.12);
+	padding: 3rem 2.5rem;
+	max-width: 480px;
+	width: 100%;
+	text-align: center;
+}
+
+.payment-cancel__icon {
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	background: #fef2f2;
+	color: #ef4444;
+	font-size: 2rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 1.5rem;
+	border: 3px solid #ef4444;
+}
+
+.payment-cancel__title {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #1B365D;
+	margin: 0 0 1rem;
+}
+
+.payment-cancel__message {
+	color: #4b5563;
+	font-size: 1rem;
+	line-height: 1.6;
+	margin: 0 0 0.75rem;
+}
+
+.payment-cancel__help {
+	color: #6b7280;
+	font-size: 0.9rem;
+	margin: 0 0 2rem;
+}
+
+.payment-cancel__actions {
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.payment-cancel__btn {
+	display: inline-block;
+	padding: 0.75rem 1.75rem;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 0.95rem;
+	text-decoration: none;
+	transition: opacity 0.2s;
+}
+
+.payment-cancel__btn:hover {
+	opacity: 0.85;
+}
+
+.payment-cancel__btn--primary {
+	background: #1B365D;
+	color: #fff;
+}
+
+.payment-cancel__btn--secondary {
+	background: #fff5f5;
+	color: #1B365D;
+	border: 2px solid #1B365D;
+}

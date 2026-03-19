@@ -197,11 +197,11 @@ export class PaymentsService {
 
 	/**
 	 * Step 1 of 2: PAYMENT_INIT
-	 * Calls PayCorp's hosted-page API server-side and returns the paymentPageUrl
-	 * that the browser should be redirected to.
+	 * Calls the PayCorp SMP proxy endpoint to create a hosted payment page session.
 	 *
-	 * Auth: client_id + auth_token headers + HMAC-SHA256(rawBody, hmacSecret) as hash header.
-	 * Ref: Paycenter Web 4.0 Technical Guide §6.5–6.7
+	 * Auth: xauthtoken (merchant session/API token) sent as header.
+	 * Body uses the SMP proxy envelope: serviceId / resource / action / requestData.
+	 * On success the payment URL is in response.body.responseData.paymentUrl.
 	 */
 	private async callPayCorpCheckout(
 		orderId: string,
@@ -210,37 +210,44 @@ export class PaymentsService {
 		user: { name: string; email: string; phone?: string },
 	): Promise<string> {
 		const clientId = parseInt(process.env.IPG_MERCHANT_ID!, 10);
-		const authToken = process.env.IPG_AUTH_TOKEN!;
-		const hmacSecret = process.env.IPG_MERCHANT_SECRET!;
-		const currency = process.env.IPG_CURRENCY || 'LKR';
+		const sessionToken = process.env.IPG_AUTH_TOKEN!;  // merchant session/API token → xauthtoken
 		const apiUrl = process.env.IPG_BASE_URL!;
 
-		const requestBody = {
+		// Unique per-request IV phrase used as DeviceId seed (required by SMP)
+		const ivPhrase = crypto.randomBytes(16).toString('hex');
+		const deviceId = crypto.createHash('md5').update(ivPhrase).digest('hex');
+
+		// SMP proxy envelope – matches the createPaymentUrl action in the Bancstac SPA
+		const requestData = {
+			transactionType: 'PURCHASE',
 			clientId,
-			type: 'PURCHASE',
-			amount: {
-				paymentAmount: amountLkr,
-				currency,
-			},
+			expiryInMins: 30,
+			transactionAmount: amountLkr,
+			clientRef: merchantRef,
 			redirect: {
 				returnUrl: process.env.IPG_RETURN_URL!,
 				returnMethod: 'GET',
 			},
-			clientRef: merchantRef,
-			comment: `Nanaska CIMA – ${merchantRef}`,
+			pageType: 'HOSTED',
+			paymentType: 'PURCHASE',
+		};
+
+		const requestBody = {
+			serviceId: 'paycentre',
+			resource: 'PAYMENT',
+			action: 'INIT',
+			msgId: String(Date.now()),
+			requestDate: new Date().toISOString(),
+			version: '1.0.4',
+			validateOnly: false,
+			requestData,
 		};
 
 		const bodyJson = JSON.stringify(requestBody);
 
-		// HMAC-SHA256 of the exact JSON body string, base64-encoded
-		const hash = crypto
-			.createHmac('sha256', hmacSecret)
-			.update(bodyJson)
-			.digest('base64');
-
 		this.logger.log(
 			`PayCorp PAYMENT_INIT → ${apiUrl}\n` +
-			`  Headers: client_id=${clientId}, auth_token=*****, hash=${hash}\n` +
+			`  Headers: xauthtoken=*****, DeviceId=${deviceId}\n` +
 			`  Body: ${bodyJson}`,
 		);
 
@@ -248,9 +255,11 @@ export class PaymentsService {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'client_id': String(clientId),
-				'auth_token': authToken,
-				'hash': hash,
+				'Accept': 'application/json',
+				'xauthtoken': sessionToken,
+				'requestSource': 'CONSOLE',
+				'DeviceId': deviceId,
+				'IvPhrase': ivPhrase,
 			},
 			body: bodyJson,
 		});
@@ -260,27 +269,29 @@ export class PaymentsService {
 
 		if (!res.ok) {
 			throw new BadRequestException(
-				data?.message || data?.error || `PayCorp error ${res.status}`,
+				data?.responseData?.errorMessage || data?.message || data?.error || `PayCorp error ${res.status}`,
 			);
 		}
 
-		// Per §6.7 the URL is returned as paymentPageUrl
+		// Response shape: { responseData: { paymentUrl: '...', clientRef: '...' } }
 		const paymentPageUrl: string =
-			data?.paymentPageUrl ??
-			data?.redirectUrl ??
-			data?.checkoutUrl ??
-			data?.data?.paymentPageUrl;
+			data?.responseData?.paymentUrl ??
+			data?.responseData?.paymentPageUrl ??
+			data?.responseData?.redirectUrl ??
+			data?.paymentUrl ??
+			data?.paymentPageUrl;
 
 		if (!paymentPageUrl) {
-			this.logger.error(`PayCorp PAYMENT_INIT missing paymentPageUrl: ${JSON.stringify(data)}`);
+			this.logger.error(`PayCorp PAYMENT_INIT missing paymentUrl: ${JSON.stringify(data)}`);
 			throw new BadRequestException('PayCorp did not return a payment page URL');
 		}
 
-		// Store the reqid on the order so PAYMENT_COMPLETE can reference it
-		if (data?.reqid) {
+		// Store the reqid / reference so PAYMENT_COMPLETE can reference it
+		const reqid = data?.responseData?.reqid ?? data?.responseData?.requestId ?? data?.reqid;
+		if (reqid) {
 			await this.prisma.order.updateMany({
 				where: { ipgMerchantRef: merchantRef },
-				data: { ipgRef: String(data.reqid) },
+				data: { ipgRef: String(reqid) },
 			});
 		}
 
@@ -296,36 +307,45 @@ export class PaymentsService {
 	 */
 	async completePayment(reqid: string): Promise<{ success: boolean; redirectTo: string }> {
 		const clientId = parseInt(process.env.IPG_MERCHANT_ID!, 10);
-		const authToken = process.env.IPG_AUTH_TOKEN!;
-		const hmacSecret = process.env.IPG_MERCHANT_SECRET!;
+		const sessionToken = process.env.IPG_AUTH_TOKEN!;
 		const apiUrl = process.env.IPG_BASE_URL!;
 
-		const requestBody = { clientId, reqid };
+		const ivPhrase = crypto.randomBytes(16).toString('hex');
+		const deviceId = crypto.createHash('md5').update(ivPhrase).digest('hex');
+
+		// Proxy envelope for PAYMENT_ENQUIRE – gets current status for a reqid
+		const requestBody = {
+			serviceId: 'paycentre',
+			resource: 'PAYMENT',
+			action: 'ENQUIRE',
+			msgId: String(Date.now()),
+			requestDate: new Date().toISOString(),
+			version: '1.0.4',
+			validateOnly: false,
+			requestData: { clientId, reqid },
+		};
 		const bodyJson = JSON.stringify(requestBody);
 
-		const hash = crypto
-			.createHmac('sha256', hmacSecret)
-			.update(bodyJson)
-			.digest('base64');
-
-		this.logger.log(`PayCorp PAYMENT_COMPLETE reqid=${reqid}`);
+		this.logger.log(`PayCorp PAYMENT_ENQUIRE reqid=${reqid}`);
 
 		const res = await fetch(apiUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'client_id': String(clientId),
-				'auth_token': authToken,
-				'hash': hash,
+				'Accept': 'application/json',
+				'xauthtoken': sessionToken,
+				'requestSource': 'CONSOLE',
+				'DeviceId': deviceId,
+				'IvPhrase': ivPhrase,
 			},
 			body: bodyJson,
 		});
 
 		const data: any = await res.json().catch(() => ({}));
-		this.logger.log(`PayCorp PAYMENT_COMPLETE response (${res.status}): ${JSON.stringify(data)}`);
+		this.logger.log(`PayCorp PAYMENT_ENQUIRE response (${res.status}): ${JSON.stringify(data)}`);
 
-		const responseCode: string = data?.responseCode ?? data?.data?.responseCode ?? '';
-		const txnRef: string = String(data?.txnReference ?? data?.data?.txnReference ?? '');
+		const responseCode: string = data?.responseData?.responseCode ?? data?.responseCode ?? '';
+		const txnRef: string = String(data?.responseData?.txnReference ?? data?.responseData?.transactionRef ?? data?.txnReference ?? '');
 		const success = res.ok && responseCode === '00';
 
 		// Find and update the order
