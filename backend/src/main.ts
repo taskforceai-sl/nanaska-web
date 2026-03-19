@@ -19,6 +19,19 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
 
+  // Basic uptime endpoints so hitting the API root doesn't return 404
+  const server = app.getHttpAdapter().getInstance();
+  server.get('/', (_req, res) => {
+    res.status(200).json({
+      service: 'nanaska-backend',
+      status: 'ok',
+      docsHint: 'Use /auth, /courses, /orders, /payments',
+    });
+  });
+  server.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
   const port = process.env.PORT || 3001;
   await app.listen(port);
   console.log(`Backend running on http://localhost:${port}`);
