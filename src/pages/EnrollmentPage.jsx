@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { usePricing } from '../context/PricingContext';
-import { getCombinationIdForLevel } from '../data/pricingData';
+import { getCombinationIdForLevel, getCombinationIdForCourse } from '../data/pricingData';
 import './EnrollmentPage.css';
 
 const API_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
@@ -120,10 +120,17 @@ export default function EnrollmentPage() {
 
 	const cartTotal = getCartTotal(form.country || selectedCountry);
 
-	const handleSubmit = (e) => {
+	const getCartCombinationId = () => {
+		if (cartItems.length !== 1) return '';
+		const item = cartItems[0];
+		if (item.type === 'level') return getCombinationIdForLevel(item.levelId);
+		if (item.type === 'course') return getCombinationIdForCourse(item.courseCode);
+		return '';
+	};
+
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setSubmitted(true);
-		clearCart();
+		await handlePayOnline(getCartCombinationId());
 	};
 
 	if (submitted) {
@@ -131,8 +138,8 @@ export default function EnrollmentPage() {
 			<div className="enrollment-page">
 				<div className="enrollment-page__success">
 					<div className="enrollment-page__success-icon">🎉</div>
-					<h1>Enrollment Request Received!</h1>
-					<p>Thank you for your interest. Our team will contact you shortly to confirm your enrollment details and finalize pricing.</p>
+					<h1>Enrollment Complete!</h1>
+					<p>Thank you! Your payment has been received and your enrollment is confirmed. Check your email for further details.</p>
 					<Link to="/" className="enrollment-page__success-btn">Back to Home</Link>
 				</div>
 			</div>
@@ -144,7 +151,7 @@ export default function EnrollmentPage() {
 			<section className="enrollment-page__hero">
 				<div className="enrollment-page__hero-inner">
 					<h1 className="enrollment-page__hero-title">Complete Your Enrollment</h1>
-					<p className="enrollment-page__hero-sub">Fill in your details and we&apos;ll get in touch to confirm your place.</p>
+					<p className="enrollment-page__hero-sub">Fill in your details below and proceed to secure online payment.</p>
 				</div>
 			</section>
 
@@ -181,30 +188,9 @@ export default function EnrollmentPage() {
 										))}
 									</ul>
 									<div className="enrollment-page__summary-total">
-										<span>Estimated Total</span>
+										<span>Total</span>
 										<span>{formatAmount(cartTotal)}</span>
 									</div>
-									<p className="enrollment-page__summary-note">
-										ℹ️ Final pricing will be confirmed by our team upon enrollment review.
-									</p>
-
-									{/* Online payment – only shown when backend is configured */}
-									{API_URL && cartItems.length === 1 && cartItems[0].type === 'level' && (
-										<div className="enrollment-page__pay-online">
-											<p className="enrollment-page__pay-online-note">
-												💳 Pay securely online via our payment gateway. Fill in your details in the form and click below — no account required.
-											</p>
-											{payError && <p className="enrollment-page__pay-error">{payError}</p>}
-											<button
-												type="button"
-												className="enrollment-page__pay-btn"
-												disabled={paying}
-												onClick={() => handlePayOnline(getCombinationIdForLevel(cartItems[0].levelId))}
-											>
-												{paying ? 'Redirecting…' : '💳 Pay Online Now'}
-											</button>
-										</div>
-									)}
 								</>
 							)}
 						</div>
@@ -390,14 +376,15 @@ export default function EnrollmentPage() {
 											<a href="https://www.nanaska.com" target="_blank" rel="noopener noreferrer">
 												terms and conditions
 											</a>
-											. I understand that pricing will be confirmed upon enrollment review. *
+											. *
 										</span>
 									</label>
 								</div>
 							</fieldset>
 
-							<button type="submit" className="enrollment-page__submit-btn">
-								Submit Enrollment Request →
+							{payError && <p className="enrollment-page__pay-error">{payError}</p>}
+							<button type="submit" className="enrollment-page__submit-btn" disabled={paying || cartItems.length === 0}>
+								{paying ? 'Redirecting to payment…' : '💳 Enroll & Pay Now →'}
 							</button>
 						</form>
 					</main>

@@ -40,6 +40,25 @@ const LEVEL_COMBINATION_ID_MAP = {
 	strategic: 'st_full',
 };
 
+// Frontend course codes -> backend single-course combination IDs
+const COURSE_COMBINATION_ID_MAP = {
+	BA1: 'cert_ba1',
+	BA2: 'cert_ba2',
+	BA3: 'cert_ba3',
+	BA4: 'cert_ba4',
+	E1: 'op_e1',
+	P1: 'op_p1',
+	F1: 'op_f1',
+	E2: 'op_e2',
+	P2: 'mg_p2',
+	F2: 'mg_f2',
+	MCS: 'mg_mcs',
+	E3: 'st_e3',
+	P3: 'st_p3',
+	F3: 'st_f3',
+	SCS: 'st_scs',
+};
+
 const countryToKey = (country) => (country || '').trim().toLowerCase();
 
 export function isSriLankanCountry(country) {
@@ -75,4 +94,8 @@ export function getLevelPricesById(levelId, fallbackPrice = 0) {
 
 export function getCombinationIdForLevel(levelId) {
 	return LEVEL_COMBINATION_ID_MAP[levelId] || '';
+}
+
+export function getCombinationIdForCourse(courseCode) {
+	return COURSE_COMBINATION_ID_MAP[courseCode] || '';
 }
