@@ -215,14 +215,12 @@ export default function IndividualCoursePage({ course, level }) {
 					<div className="individual-course__cta-inner">
 						<h2>Ready to Start {course.code}?</h2>
 						<p>Join Nanaska and study with Sri Lanka&apos;s leading CIMA educators.</p>
-						<a
-							href="https://www.nanaska.com/onboarding/courses/gather/students/registration/begin/entry/"
-							className="individual-course__cta-btn"
-							target="_blank"
-							rel="noopener noreferrer"
+						<Link
+							to="/enrollment"
+							className="individual-course__sidebar-enroll"
 						>
-							Enroll Now →
-						</a>
+							Enroll Now
+						</Link>
 					</div>
 				</div>
 			</section>
