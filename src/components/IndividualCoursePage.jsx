@@ -50,14 +50,12 @@ export default function IndividualCoursePage({ course, level }) {
 					</div>
 
 					<div className="individual-course__actions">
-						<a
-							href="https://www.nanaska.com/onboarding/courses/gather/students/registration/begin/entry/"
+						<Link
+							to="/enrollment"
 							className="individual-course__enroll-btn"
-							target="_blank"
-							rel="noopener noreferrer"
 						>
 							Enroll in this Course
-						</a>
+						</Link>
 						<button
 							className={`individual-course__cart-btn${(inCart || levelInCart) ? ' individual-course__cart-btn--added' : ''}`}
 							onClick={handleAddToCart}
@@ -103,14 +101,12 @@ export default function IndividualCoursePage({ course, level }) {
 									<dt>Price</dt>
 									<dd>From {formatAmount(coursePrice)}</dd>
 								</dl>
-								<a
-									href="https://www.nanaska.com/onboarding/courses/gather/students/registration/begin/entry/"
+								<Link
+									to="/enrollment"
 									className="individual-course__sidebar-enroll"
-									target="_blank"
-									rel="noopener noreferrer"
 								>
 									Enroll Now
-								</a>
+								</Link>
 							</div>
 						</aside>
 					</div>
