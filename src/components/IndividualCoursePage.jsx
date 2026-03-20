@@ -50,12 +50,6 @@ export default function IndividualCoursePage({ course, level }) {
 					</div>
 
 					<div className="individual-course__actions">
-						<Link
-							to="/enrollment"
-							className="individual-course__enroll-btn"
-						>
-							Enroll in this Course
-						</Link>
 						<button
 							className={`individual-course__cart-btn${(inCart || levelInCart) ? ' individual-course__cart-btn--added' : ''}`}
 							onClick={handleAddToCart}
@@ -101,12 +95,6 @@ export default function IndividualCoursePage({ course, level }) {
 									<dt>Price</dt>
 									<dd>From {formatAmount(coursePrice)}</dd>
 								</dl>
-								<Link
-									to="/enrollment"
-									className="individual-course__sidebar-enroll"
-								>
-									Enroll Now
-								</Link>
 							</div>
 						</aside>
 					</div>
@@ -211,12 +199,6 @@ export default function IndividualCoursePage({ course, level }) {
 					<div className="individual-course__cta-inner">
 						<h2>Ready to Start {course.code}?</h2>
 						<p>Join Nanaska and study with Sri Lanka&apos;s leading CIMA educators.</p>
-						<Link
-							to="/enrollment"
-							className="individual-course__sidebar-enroll"
-						>
-							Enroll Now
-						</Link>
 					</div>
 				</div>
 			</section>

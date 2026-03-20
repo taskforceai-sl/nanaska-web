@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { usePricing } from '../context/PricingContext';
+import { getLevelPricesById, getCoursePricesByCode } from '../data/pricingData';
 import LecturerPanel from './LecturerPanel';
 import { LECTURERS } from '../data/lecturersData';
 import './CourseLevelPage.css';
@@ -10,6 +12,9 @@ export default function CourseLevelPage({ level }) {
 	const [activeTab, setActiveTab] = useState('overview');
 	const currentSubject = level.subjects.find((s) => s.code === activeSubject);
 	const { addCourse, addLevel, isInCart, isLevelInCart } = useCart();
+	const { selectedCountry, getAmountForCountry, formatAmount } = usePricing();
+	const levelPrices = getLevelPricesById(level.levelId);
+	const levelAmount = getAmountForCountry(levelPrices, selectedCountry);
 
 	const levelInCart = isLevelInCart(level.levelId);
 
@@ -29,14 +34,9 @@ export default function CourseLevelPage({ level }) {
 						<span className="course-page__meta-item">📚 {level.subjects.length} Subjects</span>
 						<span className="course-page__meta-item">⏱ {level.duration}</span>
 						<span className="course-page__meta-item">🏆 {level.qualification}</span>
+						<span className="course-page__meta-item">💰 Full Level: {formatAmount(levelAmount)}</span>
 					</div>
 					<div className="course-page__hero-actions">
-						<Link
-							to="/enrollment"
-							className="course-page__enroll-btn"
-						>
-							Enroll Now
-						</Link>
 						<button
 							className={`course-page__add-level-btn${levelInCart ? ' course-page__add-level-btn--added' : ''}`}
 							onClick={() => addLevel(level)}
@@ -63,6 +63,8 @@ export default function CourseLevelPage({ level }) {
 					<div className="subject-selector">
 						{level.subjects.map((subject) => {
 							const subjectInCart = isInCart(subject.code);
+							const subjectPrices = getCoursePricesByCode(subject.code, 0);
+							const subjectAmount = getAmountForCountry(subjectPrices, selectedCountry);
 							return (
 								<div key={subject.code} className="subject-selector__item">
 									<button
@@ -71,6 +73,7 @@ export default function CourseLevelPage({ level }) {
 									>
 										<span className="subject-selector__code">{subject.code}</span>
 										<span className="subject-selector__name">{subject.name}</span>
+										<span className="subject-selector__price">{formatAmount(subjectAmount)}</span>
 									</button>
 									<button
 										className={`subject-selector__cart-btn${(subjectInCart || levelInCart) ? ' subject-selector__cart-btn--added' : ''}`}
