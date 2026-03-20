@@ -72,6 +72,7 @@ model Order {
   status          OrderStatus @default(PENDING)
   ipgMerchantRef  String?     @map("ipg_merchant_ref")
   ipgRef          String?     @map("ipg_ref")        // returned by IPG after payment
+  currency        String      @default("LKR")         // payment currency (GBP | LKR)
   // Guest details (stored when no user account exists)
   guestName       String?     @map("guest_name")
   guestEmail      String?     @map("guest_email")

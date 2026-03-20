@@ -72,18 +72,22 @@ export class PaymentsService {
 		if (!combo) throw new NotFoundException(`Combination ${dto.combinationId} not found`);
 		if (!user) throw new NotFoundException('User not found');
 
+		const currency = dto.currency || process.env.IPG_CURRENCY || 'LKR';
+		const amount = currency === 'GBP' && dto.amount ? dto.amount : combo.price;
+
 		// Create a PENDING order
 		const order = await this.prisma.order.create({
 			data: {
 				userId,
 				combinationId: combo.id,
-				amount: combo.price,
+				amount,
+				currency,
 				status: 'PENDING',
 				ipgMerchantRef: this.generateMerchantRef(),
 			},
 		});
 
-		const checkoutUrl = await this.callPayCorpCheckout(order.id, order.ipgMerchantRef!, combo.price, {
+		const checkoutUrl = await this.callPayCorpCheckout(order.id, order.ipgMerchantRef!, amount, currency, {
 			name: user.name,
 			email: user.email,
 			phone: (user as any).phone ?? '',
@@ -105,12 +109,15 @@ export class PaymentsService {
 
 		const fullName = [dto.firstName, dto.lastName].filter(Boolean).join(' ');
 		const phone = dto.phone || '';
+		const currency = dto.currency || process.env.IPG_CURRENCY || 'LKR';
+		const amount = currency === 'GBP' && dto.amount ? dto.amount : combo.price;
 
 		// Create a PENDING order (no user account required)
 		const order = await this.prisma.order.create({
 			data: {
 				combinationId: combo.id,
-				amount: combo.price,
+				amount,
+				currency,
 				status: 'PENDING',
 				ipgMerchantRef: this.generateMerchantRef(),
 				guestName: fullName,
@@ -119,7 +126,7 @@ export class PaymentsService {
 			},
 		});
 
-		const checkoutUrl = await this.callPayCorpCheckout(order.id, order.ipgMerchantRef!, combo.price, {
+		const checkoutUrl = await this.callPayCorpCheckout(order.id, order.ipgMerchantRef!, amount, currency, {
 			name: fullName,
 			email: dto.email,
 			phone,
@@ -238,20 +245,23 @@ export class PaymentsService {
 	private async callPayCorpCheckout(
 		orderId: string,
 		merchantRef: string,
-		amountLkr: number,
+		amount: number,
+		currency: string,
 		user: { name: string; email: string; phone?: string },
 	): Promise<string> {
-		const clientId = parseInt(process.env.IPG_CLIENT_ID!, 10);
+		const clientId = currency === 'GBP'
+			? parseInt(process.env.IPG_GBP_CLIENT_ID || '14004406', 10)
+			: parseInt(process.env.IPG_CLIENT_ID!, 10);
 		const serviceEndpoint = process.env.IPG_SERVICE_ENDPOINT || process.env.IPG_BASE_URL!
 
 		const requestData = {
 			clientId,
 			transactionType: 'PURCHASE',
 			transactionAmount: {
-				totalAmount: amountLkr,
-				paymentAmount: amountLkr,
+				totalAmount: amount,
+				paymentAmount: amount,
 				serviceFeeAmount: 0,
-				currency: process.env.IPG_CURRENCY || 'LKR',
+				currency,
 			},
 			redirect: {
 				returnUrl: process.env.IPG_RETURN_URL!,
@@ -326,7 +336,12 @@ export class PaymentsService {
 	 * Submits the ReqID back to PayCorp to finalise and get the transaction result.
 	 */
 	async completePayment(reqid: string): Promise<{ success: boolean; redirectTo: string }> {
-		const clientId = parseInt(process.env.IPG_CLIENT_ID!, 10);
+		// Look up the order first to determine which client ID was used at init time
+		const pendingOrder = await this.prisma.order.findFirst({ where: { ipgRef: reqid } });
+		const orderCurrency = pendingOrder?.currency || 'LKR';
+		const clientId = orderCurrency === 'GBP'
+			? parseInt(process.env.IPG_GBP_CLIENT_ID || '14004406', 10)
+			: parseInt(process.env.IPG_CLIENT_ID!, 10);
 		const serviceEndpoint = process.env.IPG_SERVICE_ENDPOINT || process.env.IPG_BASE_URL!
 
 		const requestData = { clientId, reqid };

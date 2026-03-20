@@ -21,7 +21,7 @@ const COUNTRIES = [
 
 export default function EnrollmentPage() {
 	const { cartItems, getItemPrice, getCartTotal } = useCart();
-	const { selectedCountry, setSelectedCountry, formatAmount, isSriLanka } = usePricing();
+	const { selectedCountry, setSelectedCountry, formatAmount, isSriLanka, currency } = usePricing();
 	const [submitted, setSubmitted] = useState(false);
 	// Country list: Sri Lanka is only shown to visitors detected as being in Sri Lanka.
 	const availableCountries = isSriLanka
@@ -71,6 +71,8 @@ export default function EnrollmentPage() {
 		setPayError('');
 		setPaying(true);
 		try {
+			const effectiveCurrency = currency || 'GBP';
+			const cartAmount = getCartTotal(form.country || selectedCountry);
 			let res;
 			if (token) {
 				// Authenticated user path
@@ -80,7 +82,7 @@ export default function EnrollmentPage() {
 						'Content-Type': 'application/json',
 						Authorization: `Bearer ${token}`,
 					},
-					body: JSON.stringify({ combinationId }),
+					body: JSON.stringify({ combinationId, currency: effectiveCurrency, amount: cartAmount }),
 				});
 			} else {
 				// Guest user path – send form details with the request
@@ -93,6 +95,8 @@ export default function EnrollmentPage() {
 						lastName: form.lastName,
 						email: form.email,
 						phone: form.phone || undefined,
+						currency: effectiveCurrency,
+						amount: cartAmount,
 					}),
 				});
 			}
