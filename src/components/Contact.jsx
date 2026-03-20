@@ -105,7 +105,7 @@ export default function Contact() {
 
   let phones = ['+94 77 499 7338', '+94 77 711 8902', '+94 112 575 016'];
   if (settingsMap.contact_phones) {
-    try { phones = JSON.parse(settingsMap.contact_phones); } catch (e) { console.warn('contact_phones is not valid JSON', e); }
+    try { phones = JSON.parse(settingsMap.contact_phones); } catch { phones = ['+94 77 499 7338', '+94 77 711 8902', '+94 112 575 016']; }
   }
   const email = settingsMap.contact_email || 'info@nanaska.com';
   const address = settingsMap.contact_address || 'No. 464/1/1, Galle Road, Colombo 03, Sri Lanka';

@@ -19,7 +19,7 @@ export default function TestimonialsAdminPage() {
 
   const load = () => {
     setLoading(true);
-    api.get('/testimonials?published=false')
+    api.get('/testimonials?published=all')
       .then((r) => setTestimonials(r.data))
       .catch(() => setError('Failed to load testimonials'))
       .finally(() => setLoading(false));

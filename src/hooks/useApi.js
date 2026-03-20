@@ -13,7 +13,7 @@ export function useApi(path, options = {}) {
     fetch(`${API_BASE}${path}`)
       .then((r) => r.json())
       .then((d) => { if (!cancelled) { setData(d); setLoading(false); } })
-      .catch((e) => { if (!cancelled) { setError(e); setLoading(false); } });
+      .catch((e) => { if (!cancelled) { setError(e.message || 'Failed to fetch data'); setLoading(false); } });
     return () => { cancelled = true; };
   }, [path]);
 

@@ -15,7 +15,8 @@ export class TestimonialsController {
     @Query('published') published?: string,
     @Query('prizeWinner') prizeWinner?: string,
   ) {
-    const publishedOnly = published !== 'false';
+    // published=true → published only; published=all or omitted from public → default published only
+    const publishedOnly = published !== 'all';
     const prizeWinnersOnly = prizeWinner === 'true';
     return this.testimonialsService.findAll(publishedOnly, prizeWinnersOnly);
   }
