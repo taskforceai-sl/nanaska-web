@@ -184,7 +184,7 @@ export default function NanaskaAlumniPage() {
                   <img src={w.imageUrl} alt={w.studentName || w.name} className="alumni-showcase-avatar alumni-showcase-avatar--img" loading="lazy" />
                 ) : (
                   <div className="alumni-showcase-avatar">
-                    {(w.studentName || w.name || '').split(' ').map(n => n[0]).slice(0, 2).join('')}
+                    {(w.studentName || w.name || 'A').split(' ').filter(Boolean).map(n => n[0]).slice(0, 2).join('')}
                   </div>
                 )}
                 <h4 className="alumni-showcase-card__name">{w.studentName || w.name}</h4>

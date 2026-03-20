@@ -24,7 +24,7 @@ export default function ContactSettingsPage() {
         r.data.forEach((s) => { map[s.key] = s.value; });
         setSettings(map);
         if (map.contact_phones) {
-          try { setPhones(JSON.parse(map.contact_phones)); } catch (_) {}
+          try { setPhones(JSON.parse(map.contact_phones)); } catch (e) { console.warn('contact_phones is not valid JSON', e); }
         }
       })
       .catch(() => setError('Failed to load settings'))
